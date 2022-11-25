@@ -21,7 +21,7 @@ ADD_FRIEND = "6"
 REMOVE_FRIEND = "7"
 SHOW_GRAPH = "8"
 SAVE = "9"
-
+NETWORK_SIZE = 0
 LINE = "\n*-*_*-*_*-*_*-*_*-*_*-*_*-*_*-*_*-*_*-*_*-*_*-*_*-*_*-*_*-*\n"
 
 
@@ -154,7 +154,6 @@ def create_members_list(profile_fp: IO) -> List[Member]:
     line = profile_fp.readline()
     profile_list = line.split(',')
     while line is not None and len(profile_list) == 5:
-        print("Line" + line)
         ID = int(profile_list[0])
         firstName = profile_list[1].strip()
         lastName = profile_list[2].strip()
@@ -322,7 +321,15 @@ def save_changes(profile_list: List[Member]) -> None:
                 connection_data_str += temp+"\n"
 
 
-    print(connection_data_str)
+    profileFP = open(f"profile_{len(profile_list)}.csv", "w")
+    connectionsFP = open(f"connection_{len(profile_list)}.txt", "w")
+
+    profileFP.write(profile_data_str)
+    connectionsFP.write(connection_data_str)
+
+    profileFP.close()
+    connectionsFP.close()
+    print("Data Saved Successfully")
 
 
 
@@ -333,7 +340,6 @@ def initialization() -> Tuple[List[Member], List[List[int]], List[List[int]]]:
 
     connection_fp = open_file("connection") # Clear
     network = create_network(connection_fp) # Clear
-    print(network)
     add_friends_to_profiles(profile_list, network) # Clear
     similarity_matrix = calc_similarity_scores(profile_list) # Clear
 
@@ -347,6 +353,7 @@ def main():
     print("Welcome to the network program.")
     print("We need two data files.")
     profile_list, network, similarity_matrix = initialization()
+    print("Network Size: ", NETWORK_SIZE)
     action = "Continue"
     while action != "Exit":
         action = select_action(profile_list, network, similarity_matrix)
