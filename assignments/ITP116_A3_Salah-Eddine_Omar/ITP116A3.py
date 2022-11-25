@@ -314,13 +314,14 @@ def select_action(profile_list: List[Member],
 def save_changes(profile_list: List[Member]) -> None:
     profile_data_str = "id,first_name,last_name,email,country\n"
     connection_data_str = f"{len(profile_list)}\n"
-    temp = set()
     for member in profile_list:
         profile_data_str += f"{member.id},{member.firstName},{member.lastName},{member.email}, {member.nationality}\n"
         for connection in member.connections:
-            temp.add(f"{member.id} {connection}\n")
-    temp = list(temp)
-    connection_data_str += "".join(sorted(temp)) 
+            temp = f"{member.id} {connection}"
+            if temp[::-1] not in connection_data_str:
+                connection_data_str += temp+"\n"
+
+
     print(connection_data_str)
 
 
