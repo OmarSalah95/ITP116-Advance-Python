@@ -247,34 +247,32 @@ def receive_verify_member_id(size: int):
     # Type cast our string to an actual integer and return that value so we can use these ID's elsewhere
     return int(member_id)
 
-# This does the adding for the network
+# This does the adding for the network, asks the user for 2 member ID's so that they can be added as friends
 def add_friend(profile_list: List[Member],
             similarity_matrix: List[List[int]]) -> None:
     size = len(profile_list)
     print("For the first friend: ")
+    # Grab a verified ID for 1 member
     member1 = receive_verify_member_id(size)
     print("For the second friend: ")
+    # do it again for the second member
     member2 = receive_verify_member_id(size) # TODO Complete the code
+    # Make sure that these 2 members are unique and are not already friends
     if member1 == member2:
         print("You need to enter two different ids. Please try again.")
     elif member1 in profile_list[member2].connections:
         # Lol I baked this error handling directly into adding friends method on the member object this is now redundant 
         print("These two members are already friends. Please try again.")
     else:
+        # If those checks failed, then we will add the friend to each of the respective memebrs before recalculating the similarity
+        # matrix now that changes have been made
         profile_list[member1].add_friend(member2)
         profile_list[member2].add_friend(member1)
         similarity_matrix = calc_similarity_scores(profile_list)
 
         print("The connection is added. Please check the graph.")
 
-# Here we are suffering from HORRIBLE specifications again XD why do we need the similarity matrix instead of simply asking for the user we would like to remove?
-# Not to mention redundancy, the member object has a remove method built in, there is no reason for us to be doing this like this
-# espescially when we have search functionality where we can search the user that wants to delete a friend and just use dot notation
-# to remove the friends ID after asking for user input for it. Error handling would be baked in too. 
-
-# The only reason this could need a similarity matrix as a parameter is if the system is by default automaticaly finding and removing 
-# members frineds from the list of connections, but even that is entirely illogical since why the hell would any kind of social network
-# want to build something in that automatically removes peoples friends from their list.
+# Basically the same as add in reverse, all the comments above are basically the same, just in reverse.
 def remove_friend(profile_list: List[Member], similarity_matrix: List[List[int]]) -> None:
     size = len(profile_list)
     print("For the first friend: ")
@@ -294,10 +292,16 @@ def remove_friend(profile_list: List[Member], similarity_matrix: List[List[int]]
 
 # This function asks for a country name and list all members from that country.
 def search(profile_list: List[Member]) -> None:
+    # Grab the query country from the user
     country = input("Please enter the country you would like to search for :").strip()
+    # Filter using a lambda function that will filter the profile list creating a new list of only members
+    # whos nationality matches the query country
     filtered = list(filter(lambda member: member.nationality == country, profile_list))
+    # buy a line of space for formating
     print()
+    # Print each members that matches the search criteria's information to the console with some nice space
     for member in filtered:
+        # use that pretty overwritten string method we made for the member class
         print(member, "\n")
 
 
@@ -403,7 +407,7 @@ def main():
     print("Welcome to the network program.")
     print("We need two data files.")
     profile_list, network, similarity_matrix = initialization()
-    print("Network Size: ", NETWORK_SIZE)
+    print("Network Size: ", len(network))
     action = "Continue"
     while action != "Exit":
         action = select_action(profile_list, network, similarity_matrix)
